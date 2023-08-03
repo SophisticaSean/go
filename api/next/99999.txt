@@ -1,0 +1,4 @@
+pkg testing, method (*B) FailureMsg() string #99999
+pkg testing, method (*F) FailureMsg() string #99999
+pkg testing, method (*T) FailureMsg() string #99999
+pkg testing, type TB interface, FailureMsg() string #99999

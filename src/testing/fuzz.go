@@ -22,8 +22,16 @@ func initFuzzFlags() {
 	flag.Var(&fuzzDuration, "test.fuzztime", "time to spend fuzzing; default is to run indefinitely")
 	flag.Var(&minimizeDuration, "test.fuzzminimizetime", "time to spend minimizing a value after finding a failing input")
 
-	fuzzCacheDir = flag.String("test.fuzzcachedir", "", "directory where interesting fuzzing inputs are stored (for use only by cmd/go)")
-	isFuzzWorker = flag.Bool("test.fuzzworker", false, "coordinate with the parent process to fuzz random values (for use only by cmd/go)")
+	fuzzCacheDir = flag.String(
+		"test.fuzzcachedir",
+		"",
+		"directory where interesting fuzzing inputs are stored (for use only by cmd/go)",
+	)
+	isFuzzWorker = flag.Bool(
+		"test.fuzzworker",
+		false,
+		"coordinate with the parent process to fuzz random values (for use only by cmd/go)",
+	)
 }
 
 var (
@@ -133,6 +141,17 @@ func (f *F) Fail() {
 	}
 	f.common.Helper()
 	f.common.Fail()
+}
+
+// FailureMsg reports all failure messages for a given function.
+func (f *F) FailureMsg() string {
+	// (*F).Fail may be called by (*T).Fail, which we should allow. However, we
+	// shouldn't allow direct (*F).Fail calls from inside the (*F).Fuzz function.
+	if f.inFuzzFn {
+		panic("testing: f.FailureMsg was called inside the fuzz target, use t.FailureMsg instead")
+	}
+	f.common.Helper()
+	return f.common.FailureMsg()
 }
 
 // Skipped reports whether the test was skipped.
